@@ -18,20 +18,34 @@ print(f"Loaded {len(df)} rows")
 print(df.dtypes)
 
 # TODO 1: Strip $ and commas from 'amount', convert to float
+df['amount'] = pd.to_numeric(
+    df['amount'].astype(str).str.replace(r'[$,]', '', regex=True),
+    errors='coerce',
+)
 
 # TODO 2: Convert 'date' column to datetime (handle mixed formats)
+df['date'] = pd.to_datetime(df['date'], 
+    format = "mixed",
+    errors='coerce')
 
 # TODO 3: Strip whitespace and convert 'category' to uppercase
+df['category'] = df['category'].astype(str).str.strip().str.upper()
 
 # TODO 4: Remove fully duplicate rows
+df = df.drop_duplicates()
 
 # TODO 5: Fill missing 'amount' values with 0 and add a 'flag_missing' boolean column
+df["flag_missing"] = df["amount"].isna()
+df["amount"] = df["amount"].fillna(0)
 
 # TODO 6: Remove rows where amount == -9999
+df = df[df["amount"] != -9999]
 
 # TODO 7: Strip whitespace from 'branch' column
+df["branch"] = df["branch"].astype(str).str.strip()
 
 # TODO 8: Flag rows where customer_id does not match 'CUST_' followed by 6 digits
+df["flag_invalid_customer_id"] = ~df["customer_id"].str.match(r'^CUST_\d{6}$')
 
 # Save the cleaned data
 df.to_csv('../../data/transactions_clean.csv', index=False)
